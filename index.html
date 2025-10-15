@@ -157,67 +157,102 @@
             background: #fed7d7;
             color: #742a2a;
         }
+
+        .lang-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .lang-toggle {
+                position: static;
+                display: block;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        }
     </style>
 </head>
 <body>
+    <button class="lang-toggle" onclick="toggleLanguage()">🌐 <span id="langBtn">English</span></button>
+    
     <div class="container">
         <div class="card">
-            <h1>🌱 Buenos Aires Cannabis Expo</h1>
-            <p class="subtitle">Seed seller lead collection</p>
+            <h1>🌱 <span data-es="Buenos Aires Cannabis Expo" data-en="Buenos Aires Cannabis Expo">Buenos Aires Cannabis Expo</span></h1>
+            <p class="subtitle"><span data-es="Colección de contactos" data-en="Lead collection">Colección de contactos</span></p>
             
-            <div id="storageStatus" class="storage-status">💾 Storage: Ready</div>
-            <div id="success" class="success">✓ Lead saved!</div>
+            <div id="storageStatus" class="storage-status">💾 <span data-es="Almacenamiento: Listo" data-en="Storage: Ready">Almacenamiento: Listo</span></div>
+            <div id="success" class="success">✓ <span data-es="Contacto guardado!" data-en="Lead saved!">Contacto guardado!</span></div>
 
             <form id="form">
                 <div class="form-group">
-                    <label for="phone">Phone Number *</label>
-                    <input type="tel" id="phone" placeholder="(555) 123-4567" required>
+                    <label for="name"><span data-es="Nombre" data-en="Name">Nombre</span> *</label>
+                    <input type="text" id="name" data-placeholder-es="Nombre completo" data-placeholder-en="Full name" placeholder="Nombre completo" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="role">Role/Title *</label>
-                    <input type="text" id="role" placeholder="CEO, Marketing Director, etc." required>
+                    <label for="phone"><span data-es="Teléfono" data-en="Phone Number">Teléfono</span> *</label>
+                    <input type="tel" id="phone" data-placeholder-es="+54 11 1234-5678" data-placeholder-en="+54 11 1234-5678" placeholder="+54 11 1234-5678" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="companyType">Business Type *</label>
+                    <label for="instagram"><span data-es="Instagram" data-en="Instagram">Instagram</span></label>
+                    <input type="text" id="instagram" data-placeholder-es="@usuario" data-placeholder-en="@username" placeholder="@usuario">
+                </div>
+
+                <div class="form-group">
+                    <label for="role"><span data-es="Cargo/Rol" data-en="Role/Title">Cargo/Rol</span> *</label>
+                    <input type="text" id="role" data-placeholder-es="ej: CEO, Director de Marketing" data-placeholder-en="e.g., CEO, Marketing Director" placeholder="ej: CEO, Director de Marketing" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="companyType"><span data-es="Tipo de Negocio" data-en="Business Type">Tipo de Negocio</span> *</label>
                     <select id="companyType" required>
-                        <option value="">Select type...</option>
-                        <option value="Grower">Grower</option>
-                        <option value="Dispensary">Dispensary</option>
-                        <option value="Distributor">Distributor</option>
-                        <option value="Processor">Processor</option>
-                        <option value="Manufacturer">Manufacturer</option>
-                        <option value="Cultivation Facility">Cultivation Facility</option>
-                        <option value="Testing Lab">Testing Lab</option>
-                        <option value="Supplier/Vendor">Supplier/Vendor</option>
-                        <option value="Consultant">Consultant</option>
-                        <option value="Other">Other</option>
+                        <option value="" data-es="Seleccionar..." data-en="Select type...">Seleccionar...</option>
+                        <option value="Grower" data-es="Cultivador" data-en="Grower">Cultivador</option>
+                        <option value="Dispensary" data-es="Dispensario" data-en="Dispensary">Dispensario</option>
+                        <option value="Distributor" data-es="Distribuidor" data-en="Distributor">Distribuidor</option>
+                        <option value="Processor" data-es="Procesador" data-en="Processor">Procesador</option>
+                        <option value="Manufacturer" data-es="Fabricante" data-en="Manufacturer">Fabricante</option>
+                        <option value="Cultivation Facility" data-es="Instalación de Cultivo" data-en="Cultivation Facility">Instalación de Cultivo</option>
+                        <option value="Testing Lab" data-es="Laboratorio de Pruebas" data-en="Testing Lab">Laboratorio de Pruebas</option>
+                        <option value="Supplier/Vendor" data-es="Proveedor" data-en="Supplier/Vendor">Proveedor</option>
+                        <option value="Consultant" data-es="Consultor" data-en="Consultant">Consultor</option>
+                        <option value="Other" data-es="Otro" data-en="Other">Otro</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="company">Company Name (optional)</label>
-                    <input type="text" id="company" placeholder="Company name">
+                    <label for="company"><span data-es="Nombre de la Empresa" data-en="Company Name">Nombre de la Empresa</span> <span data-es="(opcional)" data-en="(optional)">(opcional)</span></label>
+                    <input type="text" id="company" data-placeholder-es="Nombre de la empresa" data-placeholder-en="Company name" placeholder="Nombre de la empresa">
                 </div>
 
                 <div class="form-group">
-                    <label for="notes">Notes (optional)</label>
-                    <input type="text" id="notes" placeholder="Additional notes">
+                    <label for="notes"><span data-es="Notas" data-en="Notes">Notas</span> <span data-es="(opcional)" data-en="(optional)">(opcional)</span></label>
+                    <input type="text" id="notes" data-placeholder-es="Notas adicionales" data-placeholder-en="Additional notes" placeholder="Notas adicionales">
                 </div>
 
-                <button type="submit">Save Lead</button>
+                <button type="submit"><span data-es="Guardar Contacto" data-en="Save Lead">Guardar Contacto</span></button>
             </form>
         </div>
 
         <div class="card">
             <div class="leads-count">
                 <span id="count">0</span>
-                Leads Collected
+                <span data-es="Contactos Recolectados" data-en="Leads Collected">Contactos Recolectados</span>
             </div>
             
-            <button class="export-btn" onclick="exportCSV()">📥 Export to CSV</button>
-            <button class="clear-btn" onclick="clearLeads()">🗑️ Clear All</button>
+            <button class="export-btn" onclick="exportCSV()">📥 <span data-es="Exportar a CSV" data-en="Export to CSV">Exportar a CSV</span></button>
+            <button class="clear-btn" onclick="clearLeads()">🗑️ <span data-es="Borrar Todo" data-en="Clear All">Borrar Todo</span></button>
             
             <div class="leads-list" id="leadsList"></div>
         </div>
@@ -229,17 +264,39 @@
         const countEl = document.getElementById('count');
         const listEl = document.getElementById('leadsList');
         const storageStatus = document.getElementById('storageStatus');
+        let currentLang = localStorage.getItem('lang') || 'es';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            localStorage.setItem('lang', currentLang);
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-es]').forEach(el => {
+                el.textContent = el.getAttribute('data-' + currentLang);
+            });
+            document.querySelectorAll('[data-placeholder-es]').forEach(el => {
+                el.placeholder = el.getAttribute('data-placeholder-' + currentLang);
+            });
+            document.querySelectorAll('option[data-es]').forEach(el => {
+                el.textContent = el.getAttribute('data-' + currentLang);
+            });
+            document.getElementById('langBtn').textContent = currentLang === 'es' ? 'English' : 'Español';
+            
+            if (!checkStorage()) {
+                storageStatus.textContent = currentLang === 'es' ? '⚠️ Almacenamiento: Deshabilitado' : '⚠️ Storage: Disabled';
+            }
+        }
 
         // Check localStorage availability
         function checkStorage() {
             try {
                 localStorage.setItem('test', 'test');
                 localStorage.removeItem('test');
-                storageStatus.textContent = '💾 Storage: Ready';
                 storageStatus.classList.remove('error');
                 return true;
             } catch (e) {
-                storageStatus.textContent = '⚠️ Storage: Disabled';
                 storageStatus.classList.add('error');
                 return false;
             }
@@ -272,7 +329,8 @@
             
             listEl.innerHTML = leads.map((lead, i) => `
                 <div class="lead-item">
-                    <strong>${lead.phone}</strong> - ${lead.role}<br>
+                    <strong>${lead.name || lead.phone}</strong>${lead.instagram ? ` - ${lead.instagram}` : ''}<br>
+                    ${lead.phone} - ${lead.role}<br>
                     ${lead.companyType}${lead.company ? ` - ${lead.company}` : ''}<br>
                     ${lead.notes ? `<em>${lead.notes}</em><br>` : ''}
                     <small style="color:#a0aec0">${new Date(lead.timestamp).toLocaleString()}</small>
@@ -284,7 +342,9 @@
             e.preventDefault();
             
             const lead = {
+                name: document.getElementById('name').value,
                 phone: document.getElementById('phone').value,
+                instagram: document.getElementById('instagram').value,
                 role: document.getElementById('role').value,
                 companyType: document.getElementById('companyType').value,
                 company: document.getElementById('company').value,
@@ -299,21 +359,23 @@
             form.reset();
             successMsg.style.display = 'block';
             setTimeout(() => successMsg.style.display = 'none', 2000);
-            document.getElementById('phone').focus();
+            document.getElementById('name').focus();
         });
 
         function exportCSV() {
             const leads = getLeads();
             if (leads.length === 0) {
-                alert('No leads to export');
+                alert(currentLang === 'es' ? 'No hay contactos para exportar' : 'No leads to export');
                 return;
             }
             
             const csv = [
-                ['Timestamp', 'Phone', 'Role', 'Company Type', 'Company Name', 'Notes'],
+                ['Timestamp', 'Name', 'Phone', 'Instagram', 'Role', 'Company Type', 'Company Name', 'Notes'],
                 ...leads.map(l => [
                     new Date(l.timestamp).toLocaleString(),
+                    l.name || '',
                     l.phone,
+                    l.instagram || '',
                     l.role,
                     l.companyType,
                     l.company || '',
@@ -330,15 +392,19 @@
         }
 
         function clearLeads() {
-            if (confirm('Delete all leads? This cannot be undone.')) {
+            const msg = currentLang === 'es' 
+                ? '¿Eliminar todos los contactos? Esto no se puede deshacer.' 
+                : 'Delete all leads? This cannot be undone.';
+            if (confirm(msg)) {
                 localStorage.removeItem('tradeshowLeads');
                 updateDisplay();
             }
         }
 
         checkStorage();
+        updateLanguage();
         updateDisplay();
-        document.getElementById('phone').focus();
+        document.getElementById('name').focus();
     </script>
 </body>
 </html>
