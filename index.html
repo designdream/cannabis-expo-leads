@@ -183,6 +183,10 @@
     </style>
 </head>
 <body>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
     <button class="lang-toggle" onclick="toggleLanguage()">🌐 <span id="langBtn">English</span></button>
     
     <div class="container">
@@ -259,6 +263,34 @@
     </div>
 
     <script>
+        // Firebase Configuration - Replace with your Firebase project config
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        let db = null;
+        let firebaseEnabled = false;
+        
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                firebaseEnabled = true;
+                console.log('Firebase initialized successfully');
+            } else {
+                console.log('Firebase not configured - using localStorage only');
+            }
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            firebaseEnabled = false;
+        }
+
         const form = document.getElementById('form');
         const successMsg = document.getElementById('success');
         const countEl = document.getElementById('count');
@@ -286,6 +318,10 @@
             
             if (!checkStorage()) {
                 storageStatus.textContent = currentLang === 'es' ? '⚠️ Almacenamiento: Deshabilitado' : '⚠️ Storage: Disabled';
+            } else if (firebaseEnabled) {
+                storageStatus.innerHTML = currentLang === 'es' 
+                    ? '☁️ <span data-es="Cloud + Local: Listo" data-en="Cloud + Local: Ready">Cloud + Local: Listo</span>'
+                    : '☁️ <span data-es="Cloud + Local: Listo" data-en="Cloud + Local: Ready">Cloud + Local: Ready</span>';
             }
         }
 
@@ -302,29 +338,52 @@
             }
         }
 
-        function getLeads() {
+        async function getLeads() {
             try {
+                // Try to get from Firebase first
+                if (firebaseEnabled) {
+                    const snapshot = await db.collection('leads').orderBy('timestamp', 'desc').get();
+                    const leads = [];
+                    snapshot.forEach(doc => {
+                        leads.push({ id: doc.id, ...doc.data() });
+                    });
+                    // Also save to localStorage as backup
+                    localStorage.setItem('tradeshowLeads', JSON.stringify(leads));
+                    return leads;
+                }
+                // Fallback to localStorage
                 return JSON.parse(localStorage.getItem('tradeshowLeads') || '[]');
             } catch (e) {
                 console.error('Error reading leads:', e);
-                return [];
+                // Fallback to localStorage on error
+                return JSON.parse(localStorage.getItem('tradeshowLeads') || '[]');
             }
         }
 
-        function saveLeads(leads) {
+        async function saveLead(lead) {
             try {
-                localStorage.setItem('tradeshowLeads', JSON.stringify(leads));
-                updateDisplay();
+                // Save to localStorage
+                const localLeads = JSON.parse(localStorage.getItem('tradeshowLeads') || '[]');
+                localLeads.push(lead);
+                localStorage.setItem('tradeshowLeads', JSON.stringify(localLeads));
+                
+                // Also save to Firebase if enabled
+                if (firebaseEnabled) {
+                    await db.collection('leads').add(lead);
+                    console.log('Lead saved to Firebase');
+                }
+                
+                await updateDisplay();
                 return true;
             } catch (e) {
-                console.error('Error saving leads:', e);
-                alert('Error saving lead. Please try again.');
+                console.error('Error saving lead:', e);
+                alert(currentLang === 'es' ? 'Error guardando contacto. Por favor intente de nuevo.' : 'Error saving lead. Please try again.');
                 return false;
             }
         }
 
-        function updateDisplay() {
-            const leads = getLeads();
+        async function updateDisplay() {
+            const leads = await getLeads();
             countEl.textContent = leads.length;
             
             listEl.innerHTML = leads.map((lead, i) => `
@@ -338,7 +397,7 @@
             `).reverse().join('');
         }
 
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const lead = {
@@ -352,18 +411,18 @@
                 timestamp: new Date().toISOString()
             };
             
-            const leads = getLeads();
-            leads.push(lead);
-            saveLeads(leads);
+            const saved = await saveLead(lead);
             
-            form.reset();
-            successMsg.style.display = 'block';
-            setTimeout(() => successMsg.style.display = 'none', 2000);
-            document.getElementById('name').focus();
+            if (saved) {
+                form.reset();
+                successMsg.style.display = 'block';
+                setTimeout(() => successMsg.style.display = 'none', 2000);
+                document.getElementById('name').focus();
+            }
         });
 
-        function exportCSV() {
-            const leads = getLeads();
+        async function exportCSV() {
+            const leads = await getLeads();
             if (leads.length === 0) {
                 alert(currentLang === 'es' ? 'No hay contactos para exportar' : 'No leads to export');
                 return;
@@ -391,13 +450,26 @@
             a.click();
         }
 
-        function clearLeads() {
+        async function clearLeads() {
             const msg = currentLang === 'es' 
                 ? '¿Eliminar todos los contactos? Esto no se puede deshacer.' 
                 : 'Delete all leads? This cannot be undone.';
             if (confirm(msg)) {
-                localStorage.removeItem('tradeshowLeads');
-                updateDisplay();
+                try {
+                    // Clear Firebase if enabled
+                    if (firebaseEnabled) {
+                        const snapshot = await db.collection('leads').get();
+                        const batch = db.batch();
+                        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+                        await batch.commit();
+                    }
+                    // Clear localStorage
+                    localStorage.removeItem('tradeshowLeads');
+                    await updateDisplay();
+                } catch (e) {
+                    console.error('Error clearing leads:', e);
+                    alert(currentLang === 'es' ? 'Error borrando contactos' : 'Error clearing leads');
+                }
             }
         }
 
