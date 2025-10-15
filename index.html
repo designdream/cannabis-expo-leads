@@ -142,6 +142,21 @@
         .lead-item strong {
             color: #667eea;
         }
+
+        .storage-status {
+            background: #bee3f8;
+            color: #2c5282;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 12px;
+        }
+
+        .storage-status.error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
     </style>
 </head>
 <body>
@@ -150,6 +165,7 @@
             <h1>🌱 Buenos Aires Cannabis Expo</h1>
             <p class="subtitle">Seed seller lead collection</p>
             
+            <div id="storageStatus" class="storage-status">💾 Storage: Ready</div>
             <div id="success" class="success">✓ Lead saved!</div>
 
             <form id="form">
@@ -212,14 +228,42 @@
         const successMsg = document.getElementById('success');
         const countEl = document.getElementById('count');
         const listEl = document.getElementById('leadsList');
+        const storageStatus = document.getElementById('storageStatus');
+
+        // Check localStorage availability
+        function checkStorage() {
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                storageStatus.textContent = '💾 Storage: Ready';
+                storageStatus.classList.remove('error');
+                return true;
+            } catch (e) {
+                storageStatus.textContent = '⚠️ Storage: Disabled';
+                storageStatus.classList.add('error');
+                return false;
+            }
+        }
 
         function getLeads() {
-            return JSON.parse(localStorage.getItem('tradeshowLeads') || '[]');
+            try {
+                return JSON.parse(localStorage.getItem('tradeshowLeads') || '[]');
+            } catch (e) {
+                console.error('Error reading leads:', e);
+                return [];
+            }
         }
 
         function saveLeads(leads) {
-            localStorage.setItem('tradeshowLeads', JSON.stringify(leads));
-            updateDisplay();
+            try {
+                localStorage.setItem('tradeshowLeads', JSON.stringify(leads));
+                updateDisplay();
+                return true;
+            } catch (e) {
+                console.error('Error saving leads:', e);
+                alert('Error saving lead. Please try again.');
+                return false;
+            }
         }
 
         function updateDisplay() {
@@ -292,6 +336,7 @@
             }
         }
 
+        checkStorage();
         updateDisplay();
         document.getElementById('phone').focus();
     </script>
